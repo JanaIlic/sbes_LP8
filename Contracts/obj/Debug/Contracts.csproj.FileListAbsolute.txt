@@ -1,0 +1,6 @@
+K:\SBES\LP8\Contracts\bin\Debug\Contracts.dll
+K:\SBES\LP8\Contracts\bin\Debug\Contracts.pdb
+K:\SBES\LP8\Contracts\obj\Debug\Contracts.csproj.CoreCompileInputs.cache
+K:\SBES\LP8\Contracts\obj\Debug\Contracts.dll
+K:\SBES\LP8\Contracts\obj\Debug\Contracts.pdb
+K:\SBES\LP8\Contracts\obj\Debug\Contracts.csprojAssemblyReference.cache

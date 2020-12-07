@@ -1,0 +1,11 @@
+K:\SBES\LP8\Security\bin\Debug\Security.dll
+K:\SBES\LP8\Security\bin\Debug\Security.pdb
+K:\SBES\LP8\Security\bin\Debug\Contracts.dll
+K:\SBES\LP8\Security\bin\Debug\Contracts.pdb
+K:\SBES\LP8\Security\obj\Debug\Security.csprojAssemblyReference.cache
+K:\SBES\LP8\Security\obj\Debug\Security.RoleConfigFile.resources
+K:\SBES\LP8\Security\obj\Debug\Security.csproj.GenerateResource.cache
+K:\SBES\LP8\Security\obj\Debug\Security.csproj.CoreCompileInputs.cache
+K:\SBES\LP8\Security\obj\Debug\Security.csproj.CopyComplete
+K:\SBES\LP8\Security\obj\Debug\Security.dll
+K:\SBES\LP8\Security\obj\Debug\Security.pdb

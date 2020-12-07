@@ -1,0 +1,12 @@
+K:\SBES\LP8\Client\bin\Debug\Client.exe.config
+K:\SBES\LP8\Client\bin\Debug\Client.exe
+K:\SBES\LP8\Client\bin\Debug\Client.pdb
+K:\SBES\LP8\Client\bin\Debug\Contracts.dll
+K:\SBES\LP8\Client\bin\Debug\Security.dll
+K:\SBES\LP8\Client\bin\Debug\Contracts.pdb
+K:\SBES\LP8\Client\bin\Debug\Security.pdb
+K:\SBES\LP8\Client\obj\Debug\Client.csprojAssemblyReference.cache
+K:\SBES\LP8\Client\obj\Debug\Client.csproj.CoreCompileInputs.cache
+K:\SBES\LP8\Client\obj\Debug\Client.csproj.CopyComplete
+K:\SBES\LP8\Client\obj\Debug\Client.exe
+K:\SBES\LP8\Client\obj\Debug\Client.pdb
