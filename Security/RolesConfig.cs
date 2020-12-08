@@ -41,24 +41,52 @@ namespace Security
 
                 while (node.MoveNext())
                 {
-                    if (node.Key.ToString().Equals(rolename))
-                    {
-                        string value = node.Value.ToString();
-                        foreach (string prms in permissions)
-                        {
-                            value += "," + prms;
-                        }
-                        writer.AddResource(node.Key.ToString(), value);
-                    }
-                    else
+                    if (!node.Key.ToString().Equals(rolename))
                     {
                         writer.AddResource(node.Key.ToString(), node.Value.ToString());
                     }
-                    writer.Generate();
-                    writer.Close();
+                    else
+                    {
+                        List<string> currentPermissions = (node.Value.ToString().Split(',').ToList());
+                        
+                        foreach (string permToAdd in permissions)
+                        {
+                            currentPermissions.Add(permToAdd);
+                        } 
+
+                        string value = currentPermissions[0];
+                        for (int i = 1; i < currentPermissions.Count(); i++)
+                        {
+                            value += "," + currentPermissions[i];
+                        }
+                        writer.AddResource(node.Key.ToString(), value);
+                    }
                 }
 
+                writer.Generate();
+                writer.Close();
+
+                /* while (node.MoveNext())
+                 {
+                     if (node.Key.ToString().Equals(rolename))
+                     {
+                         string value = node.Value.ToString();
+                         foreach (string prms in permissions)
+                         {
+                             value += "," + prms;
+                         }
+                         writer.AddResource(node.Key.ToString(), value);
+                     }
+                     else
+                     {
+                         writer.AddResource(node.Key.ToString(), node.Value.ToString());
+                     }
+                     writer.Generate();
+                     writer.Close();
+                 } */
+
             }
+
 
         }
 
@@ -79,11 +107,11 @@ namespace Security
                 {
                     List<string> currentPermissions = (node.Value.ToString().Split(',').ToList());
 
-                    foreach (string permForDelete in permissions)
+                    foreach (string permToDelete in permissions)
                     {
                         for (int i = 0; i < currentPermissions.Count(); i++)
                         {
-                            if (currentPermissions[i].Equals(permForDelete))
+                            if (currentPermissions[i].Equals(permToDelete))
                             {
                                 currentPermissions.RemoveAt(i);
                                 break;

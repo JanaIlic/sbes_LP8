@@ -14,7 +14,11 @@ namespace Contracts
     {
         [OperationContract]
         [FaultContract(typeof(SecurityException))]
-        void CreateFile(string filename);
+        void CreateFile(string filename, string text);
+
+        [OperationContract]
+        void ReadFile(string filename);
+
 
         [OperationContract]
         [FaultContract(typeof(SecurityException))]
@@ -31,6 +35,7 @@ namespace Contracts
         [OperationContract]
         [FaultContract(typeof(SecurityException))]
         void RemoveSomeRole(string rolename);
+        
 
     }
 }

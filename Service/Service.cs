@@ -66,7 +66,7 @@ namespace Service
 
 
         [OperationBehavior(Impersonation =ImpersonationOption.Required)]
-        public void CreateFile(string filename)
+        public void CreateFile(string filename, string text)
         {
             IIdentity id = Thread.CurrentPrincipal.Identity;
             WindowsIdentity winID = id as WindowsIdentity;
@@ -79,8 +79,9 @@ namespace Service
 
                     if (Thread.CurrentPrincipal.IsInRole("Change"))
                     {
-                           StreamWriter f = File.CreateText("probni fajl");
-                           Console.WriteLine("Napravio sam probni fajl.");
+                        string key = Key.GenerateKey();
+                        Key.StoreKey(key, "key.txt");
+                        AES.Encrypt(ASCIIEncoding.ASCII.GetBytes(text) , filename, key); 
                     }
                     else
                         Console.WriteLine("Nemam dozvolu za CreateFile");
@@ -91,11 +92,18 @@ namespace Service
                 Console.WriteLine("Impersonate error: {0}", e.Message);
             }
 
-        } 
+        }
 
+        public void ReadFile(string filename)
+        {
+            string ret = string.Empty;
+            string path = @"~\..\..\..\..\Service\bin\Debug\";
+            byte[] bytesToEncrypt = File.ReadAllBytes(filename);
 
+            string key = Key.GenerateKey();
+            Key.StoreKey(key, "keyToRead.txt");
+            AES.Encrypt(bytesToEncrypt, path+filename+"_encryptedToRead.txt", key);
 
-
-
+        }
     }
 }

@@ -9,6 +9,7 @@ using Contracts;
 using System.ServiceModel;
 using System.Security;
 using System.ServiceModel.Security;
+using System.IO;
 
 namespace Client
 {
@@ -21,13 +22,20 @@ namespace Client
             factory = this.CreateChannel();                    
         }
 
-        public void CreateFile(string filename)
+
+
+        public void CreateFile(string filename, string text)
         {
             try
             {
                 try
                 {
-                    factory.CreateFile(filename);
+                    string path = @"~\..\..\..\..\Service\bin\Debug\";
+                    factory.CreateFile(path + "encryptedFile_" + filename + ".txt", text);
+
+                    string key = Key.LoadKey(path + "key.txt");
+                    AES.Decrypt(path + "encryptedFile_" + filename + ".txt", path + "decryptedFile_" + filename + ".txt", key);
+
                 }
                 catch (SecurityAccessDeniedException e)
                 {
@@ -40,7 +48,7 @@ namespace Client
             }
             catch (SecurityException e)
             {
-                Console.WriteLine("Error while tryin ImAlive, security exception: {0}", e.Message);
+                Console.WriteLine("Error while tryin to CreateFile, security exception: {0}", e.Message);
             }  
 
 
@@ -60,7 +68,6 @@ namespace Client
             try
             {
                 factory.AddNewPermissions(rolename, permissios);
-                Console.WriteLine("Adding new permissios allowed");
             }
             catch (Exception e)
             {
@@ -73,7 +80,6 @@ namespace Client
             try
             {
                 factory.RemoveSomePermissions(rolename, permissions);
-                Console.WriteLine("Removing permissions allowed");
             }
             catch (Exception e)
             {
@@ -86,7 +92,6 @@ namespace Client
             try
             {
                 factory.AddNewRole(rolename);
-                Console.WriteLine("Adding new role allowed");
             }
             catch (Exception e)
             {
@@ -99,12 +104,35 @@ namespace Client
             try
             {
                 factory.RemoveSomeRole(rolename);
-                Console.WriteLine("Removing roles allowed");
             }
             catch (Exception e)
             {
                 Console.WriteLine("Error while trying to remove a role : {0}", e.Message);
             }
         }
+
+        public void ReadFile(string filename)
+        {
+            try
+            {
+                string path = @"~\..\..\..\..\Service\bin\Debug\";
+                factory.ReadFile(filename);
+
+                string key = Key.LoadKey(path + "keyToRead.txt");
+                AES.Decrypt(path+filename+"_encryptedToRead.txt", path + filename+ "_decryptedToRead.txt", key);
+
+                Console.WriteLine("Content of file {0} : ", filename);
+                Console.WriteLine(ASCIIEncoding.ASCII.GetString(File.ReadAllBytes(path+filename+"_decryptedToRead.txt")));
+
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("Error while trying to read file {0} , {1}", filename, e.Message);
+            }
+
+
+        }
+
+
     }
 }
