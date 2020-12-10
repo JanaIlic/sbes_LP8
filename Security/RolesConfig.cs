@@ -33,6 +33,9 @@ namespace Security
             string permissionString = string.Empty;
             permissionString = (string)RoleConfigFile.ResourceManager.GetObject(rolename);
 
+            if (rolename != null && permissionString == null)
+                permissionString = string.Empty;
+
             if (permissionString != null)
             {
                 var reader = new ResXResourceReader(path);
@@ -57,33 +60,19 @@ namespace Security
                         string value = currentPermissions[0];
                         for (int i = 1; i < currentPermissions.Count(); i++)
                         {
-                            value += "," + currentPermissions[i];
+                            if (value.Equals(String.Empty))
+                                    value += currentPermissions[i];
+                            else 
+                                value += "," + currentPermissions[i];
                         }
+
+                        
                         writer.AddResource(node.Key.ToString(), value);
                     }
                 }
 
                 writer.Generate();
                 writer.Close();
-
-                /* while (node.MoveNext())
-                 {
-                     if (node.Key.ToString().Equals(rolename))
-                     {
-                         string value = node.Value.ToString();
-                         foreach (string prms in permissions)
-                         {
-                             value += "," + prms;
-                         }
-                         writer.AddResource(node.Key.ToString(), value);
-                     }
-                     else
-                     {
-                         writer.AddResource(node.Key.ToString(), node.Value.ToString());
-                     }
-                     writer.Generate();
-                     writer.Close();
-                 } */
 
             }
 

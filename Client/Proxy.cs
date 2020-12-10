@@ -32,25 +32,26 @@ namespace Client
                 {
                     string path = @"~\..\..\..\..\Service\bin\Debug\";
                     factory.CreateFile(path + "encryptedFile_" + filename + ".txt", text);
-
-                    string key = Key.LoadKey(path + "key.txt");
-                    AES.Decrypt(path + "encryptedFile_" + filename + ".txt", path + "decryptedFile_" + filename + ".txt", key);
+                    if (File.Exists(path + "key.txt"))
+                    {
+                          string key = Key.LoadKey(path + "key.txt");
+                          AES.Decrypt(path + "encryptedFile_" + filename + ".txt", path + filename + ".txt", key);
+                    }
 
                 }
                 catch (SecurityAccessDeniedException e)
                 {
-                    Console.WriteLine("Error, security access denied exception: {0}", e.Message);
+                    Console.WriteLine("Error 1, security access denied exception: {0}", e.Message);
                 }
                 catch (FaultException e)
                 {
-                    Console.WriteLine("Error, fault exception: {0}", e.Message);
+                    Console.WriteLine("Error 2, fault exception: {0}", e.Message);
                 }
             }
             catch (SecurityException e)
             {
-                Console.WriteLine("Error while tryin to CreateFile, security exception: {0}", e.Message);
-            }  
-
+                Console.WriteLine("Error 3 while tryin to CreateFile, security exception: {0}", e.Message);
+            }
 
         }
 
@@ -95,7 +96,7 @@ namespace Client
             }
             catch (Exception e)
             {
-                Console.WriteLine("Error while trying to add a new role : {0}", e.Message);
+                Console.WriteLine("Error while trying to add a new role {0} : {1}", rolename, e.Message);
             }
         }
 
@@ -107,7 +108,7 @@ namespace Client
             }
             catch (Exception e)
             {
-                Console.WriteLine("Error while trying to remove a role : {0}", e.Message);
+                Console.WriteLine("Error while trying to remove a role {0} : {1}", rolename, e.Message);
             }
         }
 
@@ -115,24 +116,53 @@ namespace Client
         {
             try
             {
-                string path = @"~\..\..\..\..\Service\bin\Debug\";
                 factory.ReadFile(filename);
-
-                string key = Key.LoadKey(path + "keyToRead.txt");
-                AES.Decrypt(path+filename+"_encryptedToRead.txt", path + filename+ "_decryptedToRead.txt", key);
-
-                Console.WriteLine("Content of file {0} : ", filename);
-                Console.WriteLine(ASCIIEncoding.ASCII.GetString(File.ReadAllBytes(path+filename+"_decryptedToRead.txt")));
-
             }
             catch (Exception e)
             {
-                Console.WriteLine("Error while trying to read file {0} , {1}", filename, e.Message);
+                Console.WriteLine("Error while trying to read file {0} : {1}", filename, e.Message);
             }
 
 
         }
 
+        public void ShowFolderContent(string foldername)
+        {
+            try
+            {
+                factory.ShowFolderContent(foldername);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("Error while trying to show content of {0} folder: {1}", foldername, e.Message);
+            }
+        }
 
+        public void CreateFolder(string foldername, string parent)
+        {
+            try
+            {
+                factory.CreateFolder(foldername, parent);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("Error while trying to create folder {0} : {1}", foldername, e.Message);
+            }
+        }
+
+        public void Delete(string fileOrFolder)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void Rename(string fileOrFOlder)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void MoveTo(string filename, string foldername)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

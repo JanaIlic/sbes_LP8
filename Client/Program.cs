@@ -14,6 +14,7 @@ namespace Client
 {
     public class Program
     {
+
         static void Main(string[] args)
         {
             NetTcpBinding binding = new NetTcpBinding();
@@ -28,20 +29,28 @@ namespace Client
 
             using (Proxy proxy = new Proxy(binding, address))
             {
-                string fileName = "unetoImeFajla";
-                string unetText = "Originalan tekst, ovo bi trebalo da bude u fajlu, nakon dekriptovanja.";
 
-                //  proxy.CreateFile(fileName, unetText);
+                /*adminove metode, rade, testirane, kasnije srediti UI i pozive..
+                  proxy.AddNewRole("new role");
+                  proxy.RemoveSomeRole("new role");
+                  proxy.RemoveSomePermissions("Editor", new string[] {"Edit"});
+                  proxy.AddNewPermissions("Editor", new string[] {"Edit"}); */
 
-                //  proxy.ReadFile("probniZaCitanje.txt");
 
-                proxy.CreateFile("jedanNovi", "samo da proverim ko od korisnika može da ga napravi..");
+                /* datoteke
+                  Console.WriteLine("Unesi ime fajla: ");
+                  string filename = Console.ReadLine();
+                  Console.WriteLine("Unesi tekst:");
+                  string txt = Console.ReadLine();
+                  proxy.CreateFile(filename, txt);
 
-               /*adminove metode, rade, testirane, kasnije srediti UI i pozive..
-                 proxy.AddNewRole("new role");
-                 proxy.RemoveSomeRole("new role");
-                 proxy.RemoveSomePermissions("Editor", new string[] {"Edit"});
-                 proxy.AddNewPermissions("Editor", new string[] {"Edit"}); */
+                 proxy.ReadFile(filename); */
+
+
+
+                //  proxy.CreateFolder("readerov folder","novi folder");
+              //  proxy.ShowFolderContent("novi folder");
+            
 
             }
 

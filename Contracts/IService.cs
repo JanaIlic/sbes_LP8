@@ -12,13 +12,6 @@ namespace Contracts
     [ServiceContract]
     public interface IService
     {
-        [OperationContract]
-        [FaultContract(typeof(SecurityException))]
-        void CreateFile(string filename, string text);
-
-        [OperationContract]
-        void ReadFile(string filename);
-
 
         [OperationContract]
         [FaultContract(typeof(SecurityException))]
@@ -35,7 +28,32 @@ namespace Contracts
         [OperationContract]
         [FaultContract(typeof(SecurityException))]
         void RemoveSomeRole(string rolename);
-        
+
+        [OperationContract]
+        [FaultContract(typeof(SecurityException))]
+        void CreateFile(string filename, string text);
+
+        [OperationContract]
+        void ReadFile(string filename);
+
+        [OperationContract]
+        void ShowFolderContent(string foldername);
+
+        [OperationContract]
+        [FaultContract(typeof(SecurityException))]
+        void CreateFolder(string foldername, string parent);
+
+        [OperationContract]
+        [FaultContract(typeof(SecurityException))]
+        void Delete(string fileOrFolder);
+
+        [OperationContract]
+        [FaultContract(typeof(SecurityException))]
+        void Rename(string fileOrFOlder);
+
+        [OperationContract]
+        [FaultContract(typeof(SecurityException))]
+        void MoveTo(string filename, string foldername);
 
     }
 }

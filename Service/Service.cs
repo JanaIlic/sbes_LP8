@@ -12,6 +12,7 @@ using System.Security.Principal;
 using System.Threading;
 using System.Security.Permissions;
 using System.IO;
+using System.DirectoryServices;
 
 namespace Service
 {
@@ -71,39 +72,87 @@ namespace Service
             IIdentity id = Thread.CurrentPrincipal.Identity;
             WindowsIdentity winID = id as WindowsIdentity;
 
-            try
-            {
-                using (winID.Impersonate())
-                {
-                    Console.WriteLine("Impersonifikacija klijenta {0}", WindowsIdentity.GetCurrent().Name);
 
-                    if (Thread.CurrentPrincipal.IsInRole("Change"))
+            if (!Thread.CurrentPrincipal.IsInRole("Change"))
+                Console.WriteLine("Nemam dozvolu za CreateFile");
+            else
+            {
+                try
+                {
+                    using (winID.Impersonate())
                     {
+                        Console.WriteLine("Impersonifikacija klijenta {0}", WindowsIdentity.GetCurrent().Name);
+
                         string key = Key.GenerateKey();
                         Key.StoreKey(key, "key.txt");
-                        AES.Encrypt(ASCIIEncoding.ASCII.GetBytes(text) , filename, key); 
+                        AES.Encrypt(ASCIIEncoding.ASCII.GetBytes(text), filename, key);
                     }
-                    else
-                        Console.WriteLine("Nemam dozvolu za CreateFile");
                 }
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine("Impersonate error: {0}", e.Message);
+                catch (Exception e)
+                {
+                    Console.WriteLine("Impersonate error: {0}", e.Message);
+                }
             }
 
         }
 
         public void ReadFile(string filename)
         {
-            string ret = string.Empty;
-            string path = @"~\..\..\..\..\Service\bin\Debug\";
-            byte[] bytesToEncrypt = File.ReadAllBytes(filename);
 
-            string key = Key.GenerateKey();
-            Key.StoreKey(key, "keyToRead.txt");
-            AES.Encrypt(bytesToEncrypt, path+filename+"_encryptedToRead.txt", key);
+            AES.Decrypt("encryptedFile_"+ filename + ".txt", filename + "_decryptedToRead.txt", Key.LoadKey("key.txt"));
 
+            Console.WriteLine("Content of file {0} : ", filename);
+            Console.WriteLine(ASCIIEncoding.ASCII.GetString(File.ReadAllBytes(filename + "_decryptedToRead.txt")));
+            File.Delete(filename + "_decryptedToRead.txt");
+        }
+
+
+        [OperationBehavior(Impersonation = ImpersonationOption.Required)]
+        public void CreateFolder(string foldername, string parent)
+        {
+
+            IIdentity id = Thread.CurrentPrincipal.Identity;
+            WindowsIdentity winID = id as WindowsIdentity;
+
+
+            if (!Thread.CurrentPrincipal.IsInRole("Change"))
+                Console.WriteLine("Nemam dozvolu za CreateFolder");
+            else
+            {
+                try
+                {
+                    using (winID.Impersonate())
+                    {
+                        Console.WriteLine("Impersonifikacija klijenta {0}", WindowsIdentity.GetCurrent().Name);
+                        FilesAndFolders.CreateFolder(foldername, parent);
+   
+                    }
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine("Impersonate error: {0}", e.Message);
+                }
+            }
+        }
+
+        public void ShowFolderContent(string foldername)
+        {
+            FilesAndFolders.ShowFolderContent(foldername);
+        }
+
+        public void Delete(string fileOrFolder)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void Rename(string fileOrFOlder)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void MoveTo(string filename, string foldername)
+        {
+            throw new NotImplementedException();
         }
     }
 }
