@@ -45,15 +45,15 @@ namespace Contracts
 
         [OperationContract]
         [FaultContract(typeof(SecurityException))]
-        void Delete(string fileOrFolder);
+        void Delete(string fileorfolder);
 
         [OperationContract]
         [FaultContract(typeof(SecurityException))]
-        void Rename(string fileOrFOlder);
+        void Rename(string fileorfolder, string newname);
 
         [OperationContract]
         [FaultContract(typeof(SecurityException))]
-        void MoveTo(string filename, string foldername);
+        void MoveTo(string fileorfolder, string foldername);
 
     }
 }

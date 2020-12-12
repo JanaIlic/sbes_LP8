@@ -150,19 +150,40 @@ namespace Client
             }
         }
 
-        public void Delete(string fileOrFolder)
+        public void Delete(string fileorfolder)
         {
-            throw new NotImplementedException();
+            try
+            {
+                factory.Delete(fileorfolder);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("Error while trying to delete {0} : {1} ", fileorfolder, e.Message);
+            }
         }
 
-        public void Rename(string fileOrFOlder)
+        public void Rename(string fileorfolder, string newname)
         {
-            throw new NotImplementedException();
+            try
+            {
+                factory.Rename(fileorfolder, newname);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("Error while trying to rename {0} : {1} ", fileorfolder, e.Message);
+            }
         }
 
-        public void MoveTo(string filename, string foldername)
+        public void MoveTo(string fileorfolder, string foldername)
         {
-            throw new NotImplementedException();
+            try
+            {
+                factory.MoveTo(fileorfolder, foldername);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("Error while trying to move {0} to {1} \n : {3} ", fileorfolder, foldername, e.Message);
+            }
         }
     }
 }

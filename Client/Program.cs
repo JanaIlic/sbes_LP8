@@ -46,11 +46,14 @@ namespace Client
 
                  proxy.ReadFile(filename); */
 
-
-
                 //  proxy.CreateFolder("readerov folder","novi folder");
-              //  proxy.ShowFolderContent("novi folder");
-            
+                // proxy.ShowFolderContent("novi");
+
+                //  proxy.Delete("txtzabrisanje");
+
+                 //  proxy.Rename( "txtBefore.txt", "txtAfter.txt");
+
+                // proxy.MoveTo("textFourth.txt", "second");
 
             }
 
