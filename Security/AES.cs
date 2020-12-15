@@ -36,11 +36,10 @@ namespace Security
                 }
             }
 
-            BinaryWriter writer = new BinaryWriter(File.OpenWrite(toReturn));
+            BinaryWriter writer = new BinaryWriter(File.OpenWrite(toReturn + ".txt"));
             writer.Write(encrypted);
             writer.Flush();
             writer.Close();
-
         }
 
 
@@ -68,7 +67,7 @@ namespace Security
                 }
             }
 
-            BinaryWriter writer = new BinaryWriter(File.OpenWrite(toReturn));
+            BinaryWriter writer = new BinaryWriter(File.OpenWrite(toReturn + ".txt"));
             writer.Write(decrypted);
             writer.Flush();
             writer.Close();

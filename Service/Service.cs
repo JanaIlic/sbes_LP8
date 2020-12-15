@@ -21,117 +21,170 @@ namespace Service
 
         public void AddNewPermissions(string rolename, params string[] permissions)
         {
-            if (Thread.CurrentPrincipal.IsInRole("Administrate"))
+            if (Thread.CurrentPrincipal.IsInRole("Configure"))
             {
-                Console.WriteLine("Uspešno izvršeno AddPermissions.");
-                RolesConfig.AddPermissions(rolename, permissions);
+                    RolesConfig.AddPermissions(rolename, permissions);
+                     Console.WriteLine(" izvršeno AddPermissions.");
             }
             else
-                Console.WriteLine("Nemam dozvolu za AddPermissions.");
+                    Console.WriteLine("Nemam dozvolu za AddPermissions.");
 
         }
 
         public void RemoveSomePermissions(string rolename, params string[] permissions)
         {
-            if (Thread.CurrentPrincipal.IsInRole("Administrate"))
+            if (Thread.CurrentPrincipal.IsInRole("Configure"))
             {
-                Console.WriteLine("Uspešno izvršeno RemovePermissions.");
-                RolesConfig.RemovePermissions(rolename, permissions);
+                    RolesConfig.RemovePermissions(rolename, permissions);
+                    Console.WriteLine(" izvršeno RemovePermissions.");
             }
             else
-                Console.WriteLine("Nemam dozvolu za RemovePermissios.");
+                    Console.WriteLine("Nemam dozvolu za RemovePermissios.");
         }
+
 
         public void AddNewRole(string rolename)
         {
-            if (Thread.CurrentPrincipal.IsInRole("Administrate"))
+            if (Thread.CurrentPrincipal.IsInRole("Configure"))
             {
-                Console.WriteLine("Uspešno izvršeno AddRole.");
-                RolesConfig.AddRole(rolename);
+                    RolesConfig.AddRole(rolename);
+                    Console.WriteLine(" izvršeno AddRole.");
             }
             else
-                Console.WriteLine("Nemam dozvolu za AddRole.");
+                    Console.WriteLine("Nemam dozvolu za AddRole.");
         }
+
 
         public void RemoveSomeRole(string rolename)
         {
-            if (Thread.CurrentPrincipal.IsInRole("Administrate"))
+            if (Thread.CurrentPrincipal.IsInRole("Configure"))
             {
-                Console.WriteLine("Uspešno izvršeno RemoveRole.");
-                RolesConfig.RemoveRole(rolename);
+                     RolesConfig.RemoveRole(rolename);
+                     Console.WriteLine(" izvršeno RemoveRole.");
             }
             else
-                Console.WriteLine("Nemam dozvolu za RemoveRole.");
+                     Console.WriteLine("Nemam dozvolu za RemoveRole.");
 
         }
 
 
         [OperationBehavior(Impersonation =ImpersonationOption.Required)]
-        public void CreateFile(string filename, string text)
+        public void CreateFile(string filename, string text, string parent)
         {
-            IIdentity id = Thread.CurrentPrincipal.Identity;
-            WindowsIdentity winID = id as WindowsIdentity;
+            CustomPrincipal principal = Thread.CurrentPrincipal as CustomPrincipal;
+            WindowsIdentity winID = principal.Identity as WindowsIdentity;
 
-
-            if (!Thread.CurrentPrincipal.IsInRole("Change"))
-                Console.WriteLine("Nemam dozvolu za CreateFile");
-            else
+            try
             {
-                try
-                {
-                    using (winID.Impersonate())
-                    {
-                        Console.WriteLine("Impersonifikacija klijenta {0}", WindowsIdentity.GetCurrent().Name);
+                 using (winID.Impersonate())
+                 {
+                      Console.WriteLine("Impersonifikacija klijenta {0}", WindowsIdentity.GetCurrent().Name);
 
-                        string key = Key.GenerateKey();
-                        Key.StoreKey(key, "key.txt");
-                        AES.Encrypt(ASCIIEncoding.ASCII.GetBytes(text), filename, key);
-                    }
-                }
-                catch (Exception e)
-                {
-                    Console.WriteLine("Impersonate error: {0}", e.Message);
-                }
+                        if (!Thread.CurrentPrincipal.IsInRole("Change"))
+                        {
+                                string username = Parser.Parse(Thread.CurrentPrincipal.Identity.Name);
+
+                                try
+                                {
+                                        Audit.AuthorizationFailed(principal.Identity.Name,
+                                        OperationContext.Current.IncomingMessageHeaders.Action,
+                                           "Nemam dozvolu za CreateFile.");
+                                }
+                                catch (ArgumentException e)
+                                {
+                                         Console.WriteLine(e.Message);
+                                }
+                                throw new FaultException(username + " je pokušao da pozove CreateFile, za šta mu treba dozvola.");
+                        }
+                        else
+                        {
+                                 string key = Key.GenerateKey();
+                                 Key.StoreKey(key, "key.txt");
+                                 AES.Encrypt(ASCIIEncoding.ASCII.GetBytes(text), filename, key);
+
+                                try
+                                {
+                                        Audit.AuthorizationSuccess(principal.Identity.Name,
+                                            OperationContext.Current.IncomingMessageHeaders.Action);
+                                }
+                                catch (ArgumentException e)
+                                {
+                                        Console.WriteLine(e.Message);
+                                }
+                        }
+                 }
             }
-
+            catch (Exception e)
+            {
+                   Console.WriteLine("Impersonate error: {0}", e.Message);
+            }           
         }
 
-        public void ReadFile(string filename)
-        {           
-            AES.Decrypt("encryptedFile_"+ filename + ".txt", filename + "_decryptedToRead.txt", Key.LoadKey("key.txt"));
 
-            Console.WriteLine("Content of file {0} : ", filename);
-            Console.WriteLine(ASCIIEncoding.ASCII.GetString(File.ReadAllBytes(filename + "_decryptedToRead.txt")));
-            File.Delete(filename + "_decryptedToRead.txt");
+        public void ReadFile(string filename)
+        {
+            if (FilesAndFolders.GetFilePaths(filename).Count() == 0 )
+                Console.WriteLine("{0} ne postoji.", filename);
+            else
+            {
+                string filetoread = FilesAndFolders.GetShortestPath(FilesAndFolders.GetFilePaths(filename));
+
+                string key = Key.GenerateKey();
+                Key.StoreKey(key, "key.txt");
+                AES.Encrypt(ASCIIEncoding.ASCII.GetBytes(File.ReadAllText(filetoread)), filename + "_encryptedToRead", key);
+            }        
         }
 
 
         [OperationBehavior(Impersonation = ImpersonationOption.Required)]
         public void CreateFolder(string foldername, string parent)
         {
-            IIdentity id = Thread.CurrentPrincipal.Identity;
-            WindowsIdentity winID = id as WindowsIdentity;
+            CustomPrincipal principal = Thread.CurrentPrincipal as CustomPrincipal;
+            WindowsIdentity winID = principal.Identity as WindowsIdentity;
 
-
-            if (!Thread.CurrentPrincipal.IsInRole("Change"))
-                Console.WriteLine("Nemam dozvolu za CreateFolder");
-            else
+            try
             {
-                try
-                {
-                    using (winID.Impersonate())
-                    {
+                 using (winID.Impersonate())
+                 {
                         Console.WriteLine("Impersonifikacija klijenta {0}", WindowsIdentity.GetCurrent().Name);
-                        FilesAndFolders.CreateFolder(foldername, parent);
-   
-                    }
-                }
-                catch (Exception e)
-                {
-                    Console.WriteLine("Impersonate error: {0}", e.Message);
-                }
+
+                        if (!Thread.CurrentPrincipal.IsInRole("Change"))
+                        {
+                                 string username = Parser.Parse(Thread.CurrentPrincipal.Identity.Name);
+
+                                 try
+                                 {
+                                        Audit.AuthorizationFailed(principal.Identity.Name, 
+                                            OperationContext.Current.IncomingMessageHeaders.Action,
+                                            "Nemam dozvolu za CreateFolder.");
+                                 }
+                                 catch (ArgumentException e)
+                                 {
+                                        Console.WriteLine(e.Message);
+                                 }
+                             throw new FaultException(username + " je pokušao da pozove CreateFolder, za šta mu treba dozvola.");
+                        }
+                        else
+                        {
+                                 FilesAndFolders.CreateFolder(foldername, parent);
+                                 try
+                                 {
+                                         Audit.AuthorizationSuccess(principal.Identity.Name,
+                                         OperationContext.Current.IncomingMessageHeaders.Action);
+                                 }
+                                 catch (ArgumentException e)
+                                 {
+                                         Console.WriteLine(e.Message);
+                                 }
+                        }
+                 }
             }
+            catch (Exception e)
+            {
+                  Console.WriteLine("Impersonate error: {0}", e.Message);
+            }           
         }
+
 
         public void ShowFolderContent(string foldername)
         {
@@ -141,80 +194,159 @@ namespace Service
 
         [OperationBehavior(Impersonation = ImpersonationOption.Required)]
         public void Delete(string fileOrFolder)
-        {             
-              IIdentity id = Thread.CurrentPrincipal.Identity;
-              WindowsIdentity winID = id as WindowsIdentity;
+        {
+            CustomPrincipal principal = Thread.CurrentPrincipal as CustomPrincipal;
+            WindowsIdentity winID = principal.Identity as WindowsIdentity;
 
-
-              if (!Thread.CurrentPrincipal.IsInRole("Change"))
-                  Console.WriteLine("Nemam dozvolu za Delete");
-              else
+              try
               {
-                  try
-                  {
-                      using (winID.Impersonate())
-                      {
-                            Console.WriteLine("Impersonifikacija klijenta {0}", WindowsIdentity.GetCurrent().Name);
-                            FilesAndFolders.Delete(fileOrFolder);
-                      }
-                  }
-                  catch (Exception e)
-                  {
-                      Console.WriteLine("Impersonate error: {0}", e.Message);
-                  }
-              }              
+                    using (winID.Impersonate())
+                    {
+                             Console.WriteLine("Impersonifikacija klijenta {0}", WindowsIdentity.GetCurrent().Name);
+
+                            if (!Thread.CurrentPrincipal.IsInRole("Delete"))
+                            {
+                                 string username = Parser.Parse(Thread.CurrentPrincipal.Identity.Name);
+
+                                 try
+                                 {
+                                         Audit.AuthorizationFailed(principal.Identity.Name,
+                                         OperationContext.Current.IncomingMessageHeaders.Action,
+                                            "Nemam dozvolu za Delete.");
+                                 }
+                                 catch (ArgumentException e)
+                                 {
+                                        Console.WriteLine(e.Message);
+                                 }
+                                 throw new FaultException(username + " je pokušao da pozove Delete, za šta mu treba dozvola.");
+                            }
+                            else
+                            {
+                                 FilesAndFolders.Delete(fileOrFolder);
+                                 try
+                                 {
+                                           Audit.AuthorizationSuccess(principal.Identity.Name,
+                                            OperationContext.Current.IncomingMessageHeaders.Action);
+                                 }
+                                 catch (ArgumentException e)
+                                 {
+                                        Console.WriteLine(e.Message);
+                                 }                           
+                            }    
+                    }
+              }
+              catch (Exception e)
+              {
+                   Console.WriteLine("Impersonate error: {0}", e.Message);
+              }             
         }
+
 
         [OperationBehavior(Impersonation = ImpersonationOption.Required)]
         public void Rename(string fileorfolder, string newname)
         {
-            IIdentity id = Thread.CurrentPrincipal.Identity;
-            WindowsIdentity winID = id as WindowsIdentity;
+            CustomPrincipal principal = Thread.CurrentPrincipal as CustomPrincipal;
+            WindowsIdentity winID = principal.Identity as WindowsIdentity;
 
-
-            if (!Thread.CurrentPrincipal.IsInRole("Change"))
-                Console.WriteLine("Nemam dozvolu za Rename");
-            else
+            try
             {
-                try
-                {
-                    using (winID.Impersonate())
-                    {
+                 using (winID.Impersonate())
+                 {
                         Console.WriteLine("Impersonifikacija klijenta {0}", WindowsIdentity.GetCurrent().Name);
-                        FilesAndFolders.Rename(fileorfolder, newname);
-                    }
-                }
-                catch (Exception e)
-                {
-                    Console.WriteLine("Impersonate error: {0}", e.Message);
-                }
+
+                        if (!Thread.CurrentPrincipal.IsInRole("Change"))
+                        {
+                            string username = Parser.Parse(Thread.CurrentPrincipal.Identity.Name);
+
+                                try
+                                {
+                                        Audit.AuthorizationFailed(principal.Identity.Name,
+                                             OperationContext.Current.IncomingMessageHeaders.Action,
+                                            "Nemam dozvolu za Rename.");
+                                }
+                                catch (ArgumentException e)
+                                {
+                                        Console.WriteLine(e.Message);
+                                }
+                                throw new FaultException(username + " je pokušao da pozove Rename, za šta mu treba dozvola.");
+                        }
+                        else
+                        {
+                                FilesAndFolders.Rename(fileorfolder, newname);
+                    
+                                try
+                                {
+                                        Audit.AuthorizationSuccess(principal.Identity.Name,
+                                        OperationContext.Current.IncomingMessageHeaders.Action);
+                                }
+                                catch (ArgumentException e)
+                                {
+                                        Console.WriteLine(e.Message);
+                                }
+                        }
+                        
+                 }
             }
+            catch (Exception e)
+            {
+                  Console.WriteLine("Impersonate error: {0}", e.Message);
+            }            
         }
+
 
         [OperationBehavior(Impersonation = ImpersonationOption.Required)]
         public void MoveTo(string fileorfolder, string foldername)
         {
-            IIdentity id = Thread.CurrentPrincipal.Identity;
-            WindowsIdentity winID = id as WindowsIdentity;
+            CustomPrincipal principal = Thread.CurrentPrincipal as CustomPrincipal;
+            WindowsIdentity winID = principal.Identity as WindowsIdentity;
 
-
-            if (!Thread.CurrentPrincipal.IsInRole("Change"))
-                Console.WriteLine("Nemam dozvolu za MoveTo");
-            else
+            try
             {
-                try
-                {
-                    using (winID.Impersonate())
-                    {
+                 using (winID.Impersonate())
+                 {
                         Console.WriteLine("Impersonifikacija klijenta {0}", WindowsIdentity.GetCurrent().Name);
-                        FilesAndFolders.MoveTo(fileorfolder, foldername);
-                    }
-                }
-                catch (Exception e)
-                {
-                    Console.WriteLine("Impersonate error: {0}", e.Message);
-                }
+
+                        if (!Thread.CurrentPrincipal.IsInRole("Change"))
+                        {
+                            string username = Parser.Parse(Thread.CurrentPrincipal.Identity.Name);
+
+                             try
+                             {
+                                    Audit.AuthorizationFailed(principal.Identity.Name,
+                                                 OperationContext.Current.IncomingMessageHeaders.Action,
+                                                 "Nemam dozvolu za MoveTo.");
+                             }
+                             catch (ArgumentException e)
+                             {
+                                    Console.WriteLine(e.Message);
+                             }
+                             throw new FaultException(username + " je pokušao da pozove MoveTo, za šta mu treba dozvola.");
+                        }
+                        else
+                        {
+                             FilesAndFolders.MoveTo(fileorfolder, foldername);
+
+                             try
+                             {
+                                    Audit.AuthorizationSuccess(principal.Identity.Name,
+                                        OperationContext.Current.IncomingMessageHeaders.Action);
+                             }
+                             catch (ArgumentException e)
+                             {
+                                    Console.WriteLine(e.Message);
+                             }
+                        }                            
+                 }
             }
+            catch (Exception e)
+            {
+                  Console.WriteLine("Impersonate error: {0}", e.Message);
+            }           
         }
+
+
+
+
+
     }
 }

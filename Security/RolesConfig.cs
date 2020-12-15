@@ -28,7 +28,7 @@ namespace Security
         }
 
 
-        public static void AddPermissions(string rolename, string[] permissions)
+        public static void AddPermissions(string rolename, params string[] permissions)
         {
             string permissionString = string.Empty;
             permissionString = (string)RoleConfigFile.ResourceManager.GetObject(rolename);
@@ -42,6 +42,9 @@ namespace Security
                 var node = reader.GetEnumerator();
                 var writer = new ResXResourceWriter(path);
 
+                bool roleIn = false;
+                bool permsIn = false;
+
                 while (node.MoveNext())
                 {
                     if (!node.Key.ToString().Equals(rolename))
@@ -50,11 +53,17 @@ namespace Security
                     }
                     else
                     {
+                        roleIn = true;
                         List<string> currentPermissions = (node.Value.ToString().Split(',').ToList());
                         
                         foreach (string permToAdd in permissions)
                         {
-                            currentPermissions.Add(permToAdd);
+                            foreach (string current in currentPermissions)
+                                if (permToAdd.Equals(current))
+                                    permsIn = true;
+                                
+                            if(!permsIn)
+                                 currentPermissions.Add(permToAdd);
                         } 
 
                         string value = currentPermissions[0];
@@ -74,17 +83,25 @@ namespace Security
                 writer.Generate();
                 writer.Close();
 
+                if (!roleIn)
+                    Console.Write("Ne postoji role {0}, pa ne može ni biti", rolename);
+                else if (permsIn)
+                    Console.Write("{0} već ima bar jednu od od unetih permisija, pa ne može ni biti", rolename);
+                else
+                    Console.Write("Uspešno");
+
             }
-
-
         }
 
 
-        public static void RemovePermissions(string rolename, string[] permissions)
+        public static void RemovePermissions(string rolename, params string[] permissions)
         {
             var reader = new ResXResourceReader(path);
             var node = reader.GetEnumerator();
             var writer = new ResXResourceWriter(path);
+
+            bool roleIn = false;
+            bool permIn = false;
 
             while (node.MoveNext())
             {
@@ -94,6 +111,7 @@ namespace Security
                 }
                 else
                 {
+                    roleIn = true;
                     List<string> currentPermissions = (node.Value.ToString().Split(',').ToList());
 
                     foreach (string permToDelete in permissions)
@@ -103,8 +121,10 @@ namespace Security
                             if (currentPermissions[i].Equals(permToDelete))
                             {
                                 currentPermissions.RemoveAt(i);
+                                permIn = true;
                                 break;
                             }
+
                         }
                     }
 
@@ -119,6 +139,12 @@ namespace Security
             writer.Generate();
             writer.Close();
 
+            if (!roleIn)
+                Console.Write("Ne postoji role {0}, pa ne može ni biti", rolename);
+            else if (!permIn)
+                Console.Write("{0} nema bar jednu od unetih permisija, pa ne može ni biti", rolename);
+            else
+                Console.Write("Uspešno");
         }
 
 
@@ -127,16 +153,30 @@ namespace Security
             var reader = new ResXResourceReader(path);
             var node = reader.GetEnumerator();
             var writer = new ResXResourceWriter(path);
+            bool roleIn = false;
 
             while (node.MoveNext())
             {
-                writer.AddResource(node.Key.ToString(), node.Value.ToString());
+                if (node.Key.ToString().Equals(rolename))
+                    roleIn = true;
+
+                 writer.AddResource(node.Key.ToString(), node.Value.ToString());
             }
 
-            var newNode = new ResXDataNode(rolename, "");
-            writer.AddResource(newNode);
-            writer.Generate();
-            writer.Close();
+            if (roleIn)
+            {
+                Console.Write("Već postoji role {0}, nije", rolename);
+            }
+            else
+            {
+                var newNode = new ResXDataNode(rolename, "");
+                writer.AddResource(newNode);
+
+                Console.Write("Uspešno dodata role {0},", rolename);
+            }
+                writer.Generate();
+                writer.Close();
+            
         }
 
 
@@ -145,12 +185,20 @@ namespace Security
             var reader = new ResXResourceReader(path);
             var node = reader.GetEnumerator();
             var writer = new ResXResourceWriter(path);
+            bool roleIn = false ;
 
             while (node.MoveNext())
             {
                 if (!node.Key.ToString().Equals(rolename))
                     writer.AddResource(node.Key.ToString(), node.Value.ToString());
+                else
+                    roleIn = true;
             }
+
+            if (!roleIn)
+                Console.Write("Ne postoji role {0}, nije", rolename);
+            else
+                Console.Write("Uspesno");
 
             writer.Generate();
             writer.Close();

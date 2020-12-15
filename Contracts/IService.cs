@@ -31,7 +31,7 @@ namespace Contracts
 
         [OperationContract]
         [FaultContract(typeof(SecurityException))]
-        void CreateFile(string filename, string text);
+        void CreateFile(string filename, string text, string parent);
 
         [OperationContract]
         void ReadFile(string filename);

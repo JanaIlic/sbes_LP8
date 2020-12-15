@@ -34,10 +34,20 @@ namespace Security
 
             IList<IIdentity> identities = list as IList<IIdentity>;
             if (list == null || identities.Count <= 0)
-             return false; 
+             return false;
 
-            evaluationContext.Properties["Principal"] =
-                new CustomPrincipal((WindowsIdentity)identities[0]);
+            WindowsIdentity winID = identities[0] as WindowsIdentity;
+               try
+               {
+                   Audit.AuthenticationSuccess(winID.Name);
+               }
+               catch (ArgumentException e)
+               {
+                   Console.WriteLine(e.Message);
+               }
+
+            evaluationContext.Properties["Principal"] = new CustomPrincipal(winID);
+
             return true;
         }
     }

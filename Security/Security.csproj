@@ -47,6 +47,13 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AES.cs" />
+    <Compile Include="Audit.cs" />
+    <Compile Include="AuditEventFile.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>AuditEventFile.resx</DependentUpon>
+    </Compile>
+    <Compile Include="AuditEvents.cs" />
     <Compile Include="CustomServiceAuthorizationManager.cs" />
     <Compile Include="CustomAutoriztionPolicy.cs" />
     <Compile Include="CustomPrincipal.cs" />
@@ -66,6 +73,10 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Include="AuditEventFile.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>AuditEventFile.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
     <EmbeddedResource Include="RoleConfigFile.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>RoleConfigFile.Designer.cs</LastGenOutput>

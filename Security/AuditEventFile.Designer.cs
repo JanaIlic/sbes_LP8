@@ -22,14 +22,14 @@ namespace Security {
     [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "15.0.0.0")]
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
-    internal class RoleConfigFile {
+    internal class AuditEventFile {
         
         private static global::System.Resources.ResourceManager resourceMan;
         
         private static global::System.Globalization.CultureInfo resourceCulture;
         
         [global::System.Diagnostics.CodeAnalysis.SuppressMessageAttribute("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode")]
-        internal RoleConfigFile() {
+        internal AuditEventFile() {
         }
         
         /// <summary>
@@ -39,7 +39,7 @@ namespace Security {
         internal static global::System.Resources.ResourceManager ResourceManager {
             get {
                 if (object.ReferenceEquals(resourceMan, null)) {
-                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("Security.RoleConfigFile", typeof(RoleConfigFile).Assembly);
+                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("Security.AuditEventFile", typeof(AuditEventFile).Assembly);
                     resourceMan = temp;
                 }
                 return resourceMan;
@@ -61,38 +61,29 @@ namespace Security {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to See,Change,Delete,Configure.
+        ///   Looks up a localized string similar to {0} se uspešno prijavio..
         /// </summary>
-        internal static string Admin {
+        internal static string AuthenticationSuccess {
             get {
-                return ResourceManager.GetString("Admin", resourceCulture);
+                return ResourceManager.GetString("AuthenticationSuccess", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to See,Change,Delete.
+        ///   Looks up a localized string similar to Neuspešna autorizacija. {0} nema pravo da pristupi {1}, zbog: {2}.
         /// </summary>
-        internal static string Editor {
+        internal static string AuthorizationFailed {
             get {
-                return ResourceManager.GetString("Editor", resourceCulture);
+                return ResourceManager.GetString("AuthorizationFailed", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to See.
+        ///   Looks up a localized string similar to {0} je uspešno pristupio {1}..
         /// </summary>
-        internal static string Reader {
+        internal static string AuthorizationSuccess {
             get {
-                return ResourceManager.GetString("Reader", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Perm3.
-        /// </summary>
-        internal static string TheRole {
-            get {
-                return ResourceManager.GetString("TheRole", resourceCulture);
+                return ResourceManager.GetString("AuthorizationSuccess", resourceCulture);
             }
         }
     }

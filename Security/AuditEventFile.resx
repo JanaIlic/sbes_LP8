@@ -117,13 +117,13 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="Admin" xml:space="preserve">
-    <value>See,Change,Delete,Configure</value>
+  <data name="AuthenticationSuccess" xml:space="preserve">
+    <value>{0} se uspešno prijavio.</value>
   </data>
-  <data name="Editor" xml:space="preserve">
-    <value>See,Change,Delete</value>
+  <data name="AuthorizationFailed" xml:space="preserve">
+    <value>Neuspešna autorizacija. {0} nema pravo da pristupi {1}, zbog: {2}</value>
   </data>
-  <data name="Reader" xml:space="preserve">
-    <value>See</value>
+  <data name="AuthorizationSuccess" xml:space="preserve">
+    <value>{0} je uspešno pristupio {1}.</value>
   </data>
 </root>
