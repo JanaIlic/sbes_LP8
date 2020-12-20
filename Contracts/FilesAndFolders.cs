@@ -70,34 +70,46 @@ namespace Contracts
 
         public static void ShowFolderContent(string foldername)
         {
-                Console.WriteLine("{0} folder sadrži podfoldere: ", foldername);
-                foreach (string folder in Directory.EnumerateDirectories(GetFolderPaths(foldername).FirstOrDefault()))
+            if (GetFolderPaths(foldername).Count <= 0)
+                Console.WriteLine("Ne postoji folder {0}.", foldername);
+            else
+            { 
+                if (Directory.EnumerateDirectories(GetFolderPaths(foldername).First()).Count() > 0)
                 {
-                    List<string> words = folder.Split('\\').ToList();
-                     Console.WriteLine(words.Last());
+                    Console.WriteLine("Folder {0} sadrži podfoldere: ", foldername);
+                     foreach (string folder in Directory.EnumerateDirectories(GetFolderPaths(foldername).FirstOrDefault()))
+                     {
+                         List<string> words = folder.Split('\\').ToList();
+                         Console.WriteLine(words.Last());
 
-                        if (Directory.EnumerateFiles(folder).Count() > 0)
-                        {
-                            Console.WriteLine(" sa fajlovima: ");
+                         if (Directory.EnumerateFiles(folder).Count() > 0)
+                         {
+                             Console.WriteLine(" sa fajlovima: ");
 
-                            foreach (string file in Directory.EnumerateFiles(folder))
-                            {
+                             foreach (string file in Directory.EnumerateFiles(folder))
+                             {
                                  List<string> parts = file.Split('\\').ToList();
                                  Console.WriteLine("\t {0}", parts.Last());
-                            }
-                        }
+                             }
+                         }
+                     }
                 }
 
                 if (Directory.EnumerateFiles(GetFolderPaths(foldername).First()).Count() > 0)
                 {
-                        Console.WriteLine("...i fajlove:");
-                        foreach (string file in Directory.EnumerateFiles(GetFolderPaths(foldername).First()))
-                        {
-                            List<string> parts = file.Split('\\').ToList();
-                            Console.Write("\t {0}", parts.Last());
-                        }
+                     Console.WriteLine("Folder {0} sadrži fajlove:", foldername);
+                     foreach (string file in Directory.EnumerateFiles(GetFolderPaths(foldername).First()))
+                     {
+                          List<string> parts = file.Split('\\').ToList();
+                          Console.WriteLine("\t {0}", parts.Last());
+                     }
                 }
 
+                if ((Directory.EnumerateDirectories(GetFolderPaths(foldername).First()).Count() <= 0) &&
+                    (Directory.EnumerateFiles(GetFolderPaths(foldername).First()).Count() <= 0))
+                         Console.WriteLine("Folder {0} je prazan.", foldername);
+
+            }
         }
 
         public static string FileOrFolder(string fileorfolder)
@@ -192,23 +204,35 @@ namespace Contracts
         public static void RenameFolder(string foldername, string newname)
         {
                  string[] oldFiles = Directory.GetFiles(path, "*", SearchOption.AllDirectories);
+                 bool exists = false;
 
                 foreach (string of in Directory.GetDirectories(path, "*", SearchOption.AllDirectories))
                 {
-                     if (of.Contains(foldername))
-                          Directory.CreateDirectory(ChangedPath(of, foldername, newname));
+                    if (of.Contains(foldername))
+                    {
+                        if ((of.Split('\\').Last().Equals(foldername)) && (Directory.Exists(ChangedPath(of, foldername, newname))))
+                        {
+                             Console.WriteLine("Vec postoji folder {0} u ovom folderu.", newname);
+                             exists = true;
+                        }
+                        else
+                             Directory.CreateDirectory(ChangedPath(of, foldername, newname));
+                    }
                 }
 
+            if (!exists)
+            {
                 foreach (string of in oldFiles)
                 {
                     if (of.Contains(foldername))
                     {
-                          string content = File.ReadAllText(of);
-                          File.WriteAllText(ChangedPath(of, foldername, newname), content);
+                        string content = File.ReadAllText(of);
+                        File.WriteAllText(ChangedPath(of, foldername, newname), content);
                     }
                 }
 
-             Directory.Delete(GetFolderPaths(foldername).First(), true);
+                Directory.Delete(GetFolderPaths(foldername).First(), true);
+            }
         }
 
 
@@ -216,27 +240,34 @@ namespace Contracts
         {
                 string p = GetShortestPath(GetFilePaths(filename));
                 string newP = p.Replace(filename, newname);
+
+            if (File.Exists(newP))
+                Console.WriteLine("Već postoji fajl {0} u ovom folderu.", newname);
+            else
+            {
                 File.WriteAllText(newP, File.ReadAllText(p));
                 File.Delete(p);
 
                 string enc = GetFilePaths("encryptedFile_" + filename).First();
                 if (File.Exists(enc))
                 {
-                     string newEnc = enc.Replace(filename, newname);
-                     File.WriteAllText(newEnc, File.ReadAllText(enc));
-                     File.Delete(enc);
+                    string newEnc = enc.Replace(filename, newname);
+                    File.WriteAllText(newEnc, File.ReadAllText(enc));
+                    File.Delete(enc);
                 }
+            }
         }
 
 
         public static void Rename(string fileorfolder, string newname)
         {
                 if (FileOrFolder(fileorfolder).Equals("file"))
-                     RenameFile(fileorfolder, newname);
+                    RenameFile(fileorfolder, newname);
                 else if (FileOrFolder(fileorfolder).Equals("folder"))
                     RenameFolder(fileorfolder, newname);
                 else
                     Console.WriteLine("Ne postoji ni fajl ni folder pod imenom {0}.", fileorfolder);
+            
         }
 
 
@@ -258,15 +289,27 @@ namespace Contracts
 
         public static void MoveFolder(string moving, string foldername)
         {
-                 string[] oldFiles = Directory.GetFiles(path, "*", SearchOption.AllDirectories);
-                 string old =  GetShortestPath(GetFolderPaths(moving));
+            string[] oldFiles = Directory.GetFiles(path, "*", SearchOption.AllDirectories);
+            string old =  GetShortestPath(GetFolderPaths(moving));
+            bool exists = false;
 
                 foreach (string of in Directory.GetDirectories(path, "*", SearchOption.AllDirectories))
                 {
                      if (of.Contains(moving))
-                         Directory.CreateDirectory(MovingPath(of, foldername, moving));
+                     {
+                          if(Directory.Exists(MovingPath(of, foldername, moving)))
+                          {
+                                Console.WriteLine("Vec postoji folder {0} u folderu {1}", moving, foldername);
+                                exists = true;
+                                break;
+                          }
+                          else
+                              Directory.CreateDirectory(MovingPath(of, foldername, moving));
+                     }
                 }
 
+            if (!exists)
+            {
                 foreach (string of in oldFiles)
                 {
                     if (of.Contains(moving))
@@ -276,24 +319,37 @@ namespace Contracts
                     }
                 }
 
-             Directory.Delete(old , true);
+                Directory.Delete(old, true);
+            }
         }
 
         public static void MoveFile(string moving, string foldername)
         {
-                string old = GetShortestPath(GetFilePaths(moving));
+            string old = GetShortestPath(GetFilePaths(moving));
+            if (File.Exists(GetShortestPath(GetFolderPaths(foldername)) + '\\' + moving + ".txt"))
+                Console.WriteLine("Vec postoji fajl {0} u folderu {1}", moving, foldername);
+            else
+            {
                 File.WriteAllText(GetShortestPath(GetFolderPaths(foldername)) + '\\' + moving + ".txt", File.ReadAllText(old));
                 File.Delete(old);
+            }
+
         }
 
         public static void MoveTo(string fileorfolder, string foldername)
         {
-            if (FileOrFolder(fileorfolder).Equals("file"))
-                MoveFile(fileorfolder, foldername);
-            else if (FileOrFolder(fileorfolder).Equals("folder"))
-                MoveFolder(fileorfolder, foldername);
+            if (!FileOrFolder(foldername).Equals("folder"))
+                Console.WriteLine("Ne postoji folder pod imenom {0}", foldername);
             else
-                Console.WriteLine("Ne postoji ni fajl ni folder pod imenom {0}.", fileorfolder);
+            {
+                if (FileOrFolder(fileorfolder).Equals("file"))
+                    MoveFile(fileorfolder, foldername);
+                else if (FileOrFolder(fileorfolder).Equals("folder"))
+                    MoveFolder(fileorfolder, foldername);
+                else
+                    Console.WriteLine("Ne postoji ni fajl ni folder pod imenom {0}.", fileorfolder);
+            }
+
         }
 
 

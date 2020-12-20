@@ -40,7 +40,7 @@ namespace Service
             policies.Add(new CustomAutoriztionPolicy());
             sh.Authorization.ExternalAuthorizationPolicies = policies.AsReadOnly();
 
-//
+
             ServiceSecurityAuditBehavior newAudit = new ServiceSecurityAuditBehavior();
             newAudit.AuditLogLocation = AuditLogLocation.Application;
             newAudit.ServiceAuthorizationAuditLevel = AuditLevel.SuccessOrFailure;
@@ -48,7 +48,7 @@ namespace Service
 
             sh.Description.Behaviors.Remove<ServiceSecurityAuditBehavior>();
             sh.Description.Behaviors.Add(newAudit); 
-//
+
             sh.Open();
 
             Console.WriteLine("{0} je pokrenuo servis.", WindowsIdentity.GetCurrent().Name);

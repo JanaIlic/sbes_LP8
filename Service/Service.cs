@@ -97,26 +97,34 @@ namespace Service
                                 throw new FaultException(username + " je pokušao da pozove CreateFile, za šta mu treba dozvola.");
                         }
                         else
-                        {
-                                 string key = Key.GenerateKey();
-                                 Key.StoreKey(key, "key.txt");
-                                 AES.Encrypt(ASCIIEncoding.ASCII.GetBytes(text), filename, key);
+                        {                               
+                                 string file = filename.Split('\\').ToList().Last();
+                                 file = file.Split('_').Last();
 
-                                try
-                                {
-                                        Audit.AuthorizationSuccess(principal.Identity.Name,
-                                            OperationContext.Current.IncomingMessageHeaders.Action);
-                                }
-                                catch (ArgumentException e)
-                                {
-                                        Console.WriteLine(e.Message);
-                                }
+                                 if (File.Exists(FilesAndFolders.GetFolderPaths(parent).FirstOrDefault() + "\\" + file + ".txt"))
+                                     Console.WriteLine("Vec postoji fajl {0} u folderu {1}.", file, parent);
+                                 else
+                                 {
+                                         string key = Key.GenerateKey();
+                                         Key.StoreKey(key, "key.txt");
+                                         AES.Encrypt(ASCIIEncoding.ASCII.GetBytes(text), filename, key);
+
+                                         try
+                                         {
+                                              Audit.AuthorizationSuccess(principal.Identity.Name,
+                                              OperationContext.Current.IncomingMessageHeaders.Action);
+                                         }
+                                         catch (ArgumentException e)
+                                         {
+                                            Console.WriteLine(e.Message);
+                                         }
+                                 }
                         }
                  }
             }
             catch (Exception e)
             {
-                   Console.WriteLine("Impersonate error: {0}", e.Message);
+                   Console.WriteLine("Error: {0}", e.Message);
             }           
         }
 
@@ -181,7 +189,7 @@ namespace Service
             }
             catch (Exception e)
             {
-                  Console.WriteLine("Impersonate error: {0}", e.Message);
+                  Console.WriteLine("Error: {0}", e.Message);
             }           
         }
 
@@ -237,7 +245,7 @@ namespace Service
               }
               catch (Exception e)
               {
-                   Console.WriteLine("Impersonate error: {0}", e.Message);
+                   Console.WriteLine("Error: {0}", e.Message);
               }             
         }
 
@@ -289,7 +297,7 @@ namespace Service
             }
             catch (Exception e)
             {
-                  Console.WriteLine("Impersonate error: {0}", e.Message);
+                  Console.WriteLine("Error: {0}", e.Message);
             }            
         }
 
@@ -340,7 +348,7 @@ namespace Service
             }
             catch (Exception e)
             {
-                  Console.WriteLine("Impersonate error: {0}", e.Message);
+                  Console.WriteLine("Error: {0}", e.Message);
             }           
         }
 
